@@ -1,9 +1,11 @@
 data:
   batch_size: 100
   smiles_file: datasets/np_50k.csv
-  type_of_encoding: 1
-  logfile_name: logfile.dat
-  results_name: results.dat
+  results_name: results50k.dat
+  encoded_data_file: encoded_data_50k.npy
+  data_train_file: data_train_50k.pt
+  data_valid_file: data_valid_50k.pt
+  encoding_alphabet_file: encoding_alphabet_50k.json
 
 decoder:
   latent_dimension: 50

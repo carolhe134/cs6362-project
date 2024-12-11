@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# File paths (update these with the actual file paths)
+# File paths
 file_paths = [
     "training_logs_50k_optim/kl_divergence.csv",
     "training_logs_50k_optim/reconstruction_loss.csv",
@@ -39,8 +39,5 @@ plt.tight_layout()
 # Save the entire grid as a single PNG file
 grid_output_file = "Training_Logs_Grid_50k_optim.png"
 plt.savefig(grid_output_file, dpi=300)
-
-# Show the plot (optional)
-plt.show()
 
 print(f"2x2 grid of plots saved as {grid_output_file}!")

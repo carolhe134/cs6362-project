@@ -1,9 +1,11 @@
 data:
   batch_size: 100
   smiles_file: datasets/QM9.csv
-  type_of_encoding: 1
-  logfile_name: logfile_QM9.dat
   results_name: results_QM9.dat
+  encoded_data_file: encoded_data_QM9.npy
+  data_train_file: data_train_QM9.pt
+  data_valid_file: data_valid_QM9.pt
+  encoding_alphabet_file: encoding_alphabet_QM9.json
 
 decoder:
   latent_dimension: 50

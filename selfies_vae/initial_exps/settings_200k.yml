@@ -1,9 +1,11 @@
 data:
   batch_size: 100
   smiles_file: datasets/np_200k.csv
-  type_of_encoding: 1
-  logfile_name: logfile_200k.dat
   results_name: results_200k.dat
+  encoded_data_file: encoded_data_200k.npy
+  data_train_file: data_train_200k.pt
+  data_valid_file: data_valid_200k.pt
+  encoding_alphabet_file: encoding_alphabet_200k.json
 
 decoder:
   latent_dimension: 50
