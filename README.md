@@ -1,7 +1,5 @@
 # Automated Generation of Natural Product Drug Structures: A VAE-BO Framework for Molecular Design
 
-Authors
-
 - Jingwen Du, jingwen.du@vanderbilt.edu
 - Carol He, carol.he@vanderbilt.edu
 
@@ -32,12 +30,18 @@ Our very first experiments involve training the Chemical VAE designed by [Gómez
 We implemented a standard VAE that encodes from and decodes to one-hot SELFIES encoding and drew inspiration from the SELFIES paper written by [Krenn et al.](https://iopscience.iop.org/article/10.1088/2632-2153/aba947/pdf). We compared this VAE with the Chemical VAE, tuned its hyperparameters, and ran BO on its latent space.
 
 - `selfiesvae`: Contains the model implementation of the SELFIES VAE
+
+### Initial Experiments
+
 - `selfies_vae/initial_exps`
   - `datasets/`: 200k NP and QM9 datasets used
   - `settings*.yml`: Contains hyperparameters that the SELFIES paper used (fitted for the QM9 dataset)
   - `preprocess*.py`: Scripts used to preprocess the NP and QM9 datasets to generate SELFIES encodings
   - `train*.py`: Scripts used to train the SELFIES VAE on NP and QM9 datasets
   - `results*.dat`: Files containing the validity, diversity, and reconstruction accuracy results for both VAE models
+
+### Hyperparameter Tuning
+
 - `selfies_vae/hp_tuning`: Code used to tune the SELFIES VAE on 50k NPs using 25 trials
   - `datasets/np_50k.csv`: 50k NP dataset
   - `settings_50k_hp_tuning.yml`: Contains hyperparameters that will not be tuned (e.g. output file names) and the names of hyperparameters that will be tuned
@@ -45,6 +49,9 @@ We implemented a standard VAE that encodes from and decodes to one-hot SELFIES e
   - `np_50k_preprocessed.zip`: Zip file containing the outputs of the preprocessing script (one-hot encodings for all 50k NPs, training dataset, validation dataset, and SELFIES alphabet)
   - `tune_hp_50k_25.py`: Script for hyperparameter tuning
   - `results50k_25trials/*`: Validity, diversity, and reconstruction accuracy values for each trial
+
+### Training with Optimal Hyperparameters
+
 - `selfies_vae/train_50k_optim`: Code used for training the SELFIES VAE on the 50k NP dataset using the optimal hyperparameters, while saving the weights and logging loss values
   - `datasets/np_50k.csv`: 50k NP dataset
   - `settings_50k_optim.yml`: Optimal hyperparameters and output file names
@@ -54,6 +61,9 @@ We implemented a standard VAE that encodes from and decodes to one-hot SELFIES e
   - `saved_models_50k_optim/*`: Encoder and decoder weights for each epoch
   - `training_logs_50k_optim/*`: Logs containing the training loss, validation loss, KL divergence, and reconstruction loss per epoch
   - `train_plots.py`: Script used for generating the 4 loss vs time plots shown in `Training_Logs_Grid_50k_optim.png`
+
+### Bayesian Optimization
+
 - `selfies_vae/bayesian_optimization`: Code used for running BO on the SELFIES VAE model trained on the 50k dataset with optimal hyperparameters
   - `decoder.pt`: Saved decoder weights from last epoch of training
   - `settings_50k_optim.yml`: Hyperparameters needed for BO, such as latent dimension
@@ -62,7 +72,7 @@ We implemented a standard VAE that encodes from and decodes to one-hot SELFIES e
   - `bayesian_opt.py`: Script for setting up and running BO on trained VAE's latent space
   - `bo_progress_50k_optim*.yml`: Files containing the latent vectors sampled and their corresponding objective function value (5 \* QED - SAS). Each file corresponds to a different BO trial, and each trial may differ in the number of BO iterations, number of initial training samples, and bounds from which to sample.
 
-## Notes on BO
+### Notes on BO
 
 - From a high-level qualitative inspection of the BO trial results, BO mainly sampled molecules that had similar low objective values across all trials.
 - Different combinations of BO hyperparameters were experimented with. Changing the sampling bounds greatly affected the effectiveness of the sampling process. However, more time is needed to determine which bounds are more useful.
