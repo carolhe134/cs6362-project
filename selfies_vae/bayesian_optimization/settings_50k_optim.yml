@@ -1,0 +1,26 @@
+data:
+  batch_size: 256
+  smiles_file: datasets/np_50k.csv
+  results_name: results_50k_optim.dat
+  encoded_data_file: encoded_data_50k.npy
+  data_train_file: data_train_50k.pt
+  data_valid_file: data_valid_50k.pt
+  encoding_alphabet_file: encoding_alphabet_50k.json
+
+decoder:
+  latent_dimension: 70
+  gru_neurons_num: 100
+  gru_stack_size: 2
+
+encoder:
+  layer_1d: 50
+  layer_2d: 100
+  layer_3d: 150
+  latent_dimension: 70
+
+training:
+  KLD_alpha: 0.00027999039772894394
+  lr_enc: 5.70400261728206e-05
+  lr_dec: 0.00014201502833899657
+  num_epochs: 5000
+  sample_num: 1000

@@ -1,6 +1,7 @@
 import numpy as np
 import selfies as sf
 from rdkit.Chem import MolFromSmiles
+from rdkit import Chem
 
 # Convert a single SMILES string to one-hot encoding.
 def smile_to_hot(smile, largest_smile_len, alphabet):
@@ -52,3 +53,33 @@ def is_correct_smiles(smiles):
         return MolFromSmiles(smiles, sanitize=True) is not None
     except Exception:
         return False
+
+# Convert one hot SELFIES to SELFIES strings
+def one_hot_to_selfies(one_hot, alphabet):
+    indices = one_hot.argmax(dim=2)
+    selfies_strings = []
+    for sequence in indices:  # Iterate over batch
+        selfies_string = ''.join(
+            [alphabet[idx] for idx in sequence if alphabet[idx] != "[nop]"]
+        )
+        selfies_strings.append(selfies_string)
+    return selfies_strings
+
+# Convert from SELFIES strings to molecules
+def selfies_to_mol_list(selfies_strings):
+    mol_list = []
+    for selfies in selfies_strings:
+        try:
+            # Convert SELFIES to SMILES
+            smiles = sf.decoder(selfies)
+            if smiles:
+                # Convert SMILES to RDKit Mol object
+                mol = Chem.MolFromSmiles(smiles)
+                mol_list.append(mol)  # Append the Mol object (or None if invalid)
+            else:
+                mol_list.append(None)  # Append None for invalid SMILES
+        except Exception as e:
+            # Handle any unexpected errors
+            print(f"Error processing SELFIES '{selfies}': {e}")
+            mol_list.append(None)
+    return mol_list

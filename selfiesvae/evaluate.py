@@ -4,7 +4,7 @@ import selfies as sf
 import numpy as np
 from utils import is_correct_smiles
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Compute the Evidence Lower Bound (ELBO) for VAE.
 def elbo(x, x_hat, mus, log_vars, KLD_alpha):
@@ -45,7 +45,7 @@ def quality_in_valid_set(vae_encoder, vae_decoder, data_valid, batch_size, KLD_a
 
         latent_points = latent_points.unsqueeze(0)
         hidden = vae_decoder.init_hidden(batch_size=batch_size)
-        out_one_hot = torch.zeros_like(batch, device=device)
+        out_one_hot = torch.zeros_like(batch, device=DEVICE)
 
         for seq_index in range(trg_len):
             out_one_hot_line, hidden = vae_decoder(latent_points, hidden)
@@ -70,7 +70,7 @@ def sample_latent_space(vae_encoder, vae_decoder, sample_len):
     vae_decoder.eval()
 
     gathered_atoms = []
-    latent_point = torch.randn(1, 1, vae_encoder.latent_dimension, device=device)
+    latent_point = torch.randn(1, 1, vae_encoder.latent_dimension, device=DEVICE)
     hidden = vae_decoder.init_hidden()
 
     softmax = nn.Softmax(dim=0)
@@ -99,3 +99,14 @@ def latent_space_quality(vae_encoder, vae_decoder, alphabet, sample_num, sample_
             all_correct_molecules.add(molecule)
 
     return total_correct, len(all_correct_molecules)
+
+# Convert latent vectors to one hot SELFIES
+def latent_to_one_hot(vae_decoder, latent_points, len_max_molec, len_alphabet):
+    batch_size = latent_points.shape[0]
+    latent_points = latent_points.unsqueeze(0)
+    hidden = vae_decoder.init_hidden(batch_size=batch_size)
+    out_one_hot = torch.zeros(batch_size, len_max_molec, len_alphabet, device=DEVICE)
+    for seq_idx in range(len_max_molec):
+        out_line, hidden = vae_decoder(latent_points, hidden)
+        out_one_hot[:, seq_idx, :] = out_line[0]
+    return out_one_hot
