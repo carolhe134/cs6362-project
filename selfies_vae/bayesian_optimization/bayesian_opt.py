@@ -1,6 +1,4 @@
 import torch
-# from selfies import decoder
-# from rdkit import Chem
 from rdkit.Chem import RDConfig, QED
 import os
 import sys
@@ -17,6 +15,7 @@ ENCODER_FILE = "encoder.pt"
 DECODER_FILE = "decoder.pt"
 NUM_ITERATIONS = 3 # later change to 10
 BO_FILE = "bo_progress_50k_optim.yml"
+INITIAL_SAMPLE_FACTOR = 1 # later change to 5
 
 # Define device
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -77,13 +76,13 @@ def objective_function(latent_points):
     # 2. Convert one-hot SELFIES (batch_size, len_max_molec, len_alphabet) to SELFIES strings
     selfies_strings = one_hot_to_selfies(out_one_hot, encoding_alphabet)
 
-    # 2. Convert SELFIES to mol
+    # 3. Convert SELFIES to mol
     mol_list = selfies_to_mol_list(selfies_strings)
 
-    # 3. Calculate QED and SAS for each mol
+    # 4. Calculate QED and SAS for each mol
     property_list = calculate_molecule_properties(mol_list)
 
-    # 4. Compute the objective (5 * qed - sas)
+    # 5. Compute the objective (5 * qed - sas)
     objective_values = calculate_objective_values(property_list)
 
     return torch.tensor(objective_values)
@@ -91,7 +90,7 @@ def objective_function(latent_points):
 print("Initializing training data")
 
 latent_dim = settings['decoder']['latent_dimension']
-num_initial_samples = 5 * latent_dim
+num_initial_samples = INITIAL_SAMPLE_FACTOR * latent_dim
 train_x = torch.rand((num_initial_samples, latent_dim))
 train_y = objective_function(train_x).unsqueeze(-1)  # Compute the objective values
 bounds = torch.tensor([[0.0] * latent_dim, [1.0] * latent_dim])  # Search space bounds
@@ -106,4 +105,4 @@ samples = optimizer.optimize(objective_function, num_iters=NUM_ITERATIONS)
 with open(BO_FILE, 'w') as file:
     file.write("Iteration\tCandidate\tValue\n")
     for i, (candidate, value) in enumerate(samples):       
-        file.write(f"{i + 1}\t{candidate.numpy()}\t{value.item()}\n")
+        file.write(f"{i + 1}\t{candidate.cpu().numpy()}\t{value.item()}\n")
