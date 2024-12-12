@@ -60,7 +60,7 @@ We implemented a standard VAE that encodes from and decodes to one-hot SELFIES e
   - `results_50k_optim.dat`: Validity, diversity, and reconstruction accuracy values during training
   - `saved_models_50k_optim/*`: Encoder and decoder weights for each epoch
   - `training_logs_50k_optim/*`: Logs containing the training loss, validation loss, KL divergence, and reconstruction loss per epoch
-  - `train_plots.py`: Script used for generating the 4 loss vs time plots shown in `Training_Logs_Grid_50k_optim.png`
+  - `train_plots.py`: Script used for generating the 4 loss vs epoch plots shown in `Training_Logs_Grid_50k_optim.png`
 
 ### Bayesian Optimization
 
@@ -74,7 +74,7 @@ We implemented a standard VAE that encodes from and decodes to one-hot SELFIES e
 
 ### Notes on BO
 
-- From a high-level qualitative inspection of the BO trial results, BO mainly sampled molecules that had similar low objective values across all trials.
+- From a high-level qualitative inspection of the BO trial results, BO mainly sampled molecules that had similar low objective values across all trials (we wanted BO to maximize the objective value).
 - Different combinations of BO hyperparameters were experimented with. Changing the sampling bounds greatly affected the effectiveness of the sampling process. However, more time is needed to determine which bounds are more useful.
 - The VAE model used was only trained on 50k NPs, so the model's latent space is most likely not informative enough for BO to find very optimal molecules.
-- The objective function used for BO is often used in literature but is targeted towards synthetics molecules, but NPs are not easily synthesized.
+- The objective function used for BO here (5 \* QED - SAS) is often used in literature but is targeted towards synthetic molecules, but NPs are not easily synthesized.
