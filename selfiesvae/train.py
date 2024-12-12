@@ -5,9 +5,9 @@ import numpy as np
 import yaml
 import json
 
-from log import *
-from evaluate import *
-from models import *
+from .log import *
+from .evaluate import *
+from .models import *
 
 # Define device
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -19,14 +19,14 @@ def load_data(settings_file):
 
     settings = yaml.safe_load(open(settings_file, "r"))
 
-    if not os.path.exists(settings['encoded_data_file']):
+    if not os.path.exists(settings['data']['encoded_data_file']):
         raise FileNotFoundError("Encoded data file not found. Run preprocessing first.")
 
-    data = np.load(settings['encoded_data_file'])
-    data_train = torch.load(settings['data_train_file'])
-    data_valid = torch.load(settings['data_valid_file'])
+    data = np.load(settings['data']['encoded_data_file'])
+    data_train = torch.load(settings['data']['data_train_file'])
+    data_valid = torch.load(settings['data']['data_valid_file'])
 
-    with open(settings['encoding_alphabet_file'], "r") as f:
+    with open(settings['data']['encoding_alphabet_file'], "r") as f:
         encoding_alphabet = json.load(f)
 
     return data, data_train, data_valid, encoding_alphabet, settings

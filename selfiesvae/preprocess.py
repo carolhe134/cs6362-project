@@ -4,7 +4,7 @@ import torch
 import numpy as np
 import pandas as pd
 import selfies as sf
-from utils import multiple_selfies_to_hot
+from .utils import multiple_selfies_to_hot
 import json
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -45,7 +45,7 @@ def preprocess_and_save_data(settings_file):
     data = multiple_selfies_to_hot(encoding_list, largest_molecule_len, encoding_alphabet)
     
     # Save processed data to a file.
-    np.save(settings['encoded_data_file'], data)
+    np.save(settings['data']['encoded_data_file'], data)
     print(f"Saved one-hot encoded data to 'encoded_data.npy'.")
     
     # Split data into train and validation datasets.
@@ -57,10 +57,10 @@ def preprocess_and_save_data(settings_file):
     data_valid = data[idx_train_val:idx_val_test]
 
     # Save train and validation datasets as .pt files.
-    torch.save(data_train, settings['data_train_file'])
-    torch.save(data_valid, settings['data_valid_file'])
+    torch.save(data_train, settings['data']['data_train_file'])
+    torch.save(data_valid, settings['data']['data_valid_file'])
 
     # Save the encoding alphabet to a JSON file.
-    with open(settings['encoding_alphabet_file'], "w") as f:
+    with open(settings['data']['encoding_alphabet_file'], "w") as f:
         json.dump(encoding_alphabet, f, indent=4)
     print("Saved encoding_alphabet as JSON.")

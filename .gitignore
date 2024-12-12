@@ -1,3 +1,4 @@
 env
 other/
-*/__pycache__/
+**/__pycache__/
+selfies_vae/latent_space_exploration/
