@@ -1,5 +1,5 @@
 import optuna
-from train import *
+from .train import *
 
 def create_objective(settings_file, n_trials):
     def objective(trial):

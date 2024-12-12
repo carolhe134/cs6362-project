@@ -2,68 +2,69 @@ import torch
 from torch import nn
 
 class VAEEncoder(nn.Module):
-    # Encoder module for a Variational Autoencoder (VAE).
-    # Encodes the input into a latent space representation.
-    def __init__(self, input_dim, layer1_dim, layer2_dim, layer3_dim, latent_dim):
-        super(VAEEncoder, self).__init__()
-        self.latent_dim = latent_dim
 
-        # Fully connected layers to reduce dimensionality
-        self.encoder_nn = nn.Sequential(
-            nn.Linear(input_dim, layer1_dim),
+    # Fully Connected layers to encode molecule to latent space
+    def __init__(self, in_dimension, layer_1d, layer_2d, layer_3d,
+                 latent_dimension):
+        super(VAEEncoder, self).__init__()
+        self.latent_dimension = latent_dimension
+
+        # Reduce dimension up to second last layer of Encoder
+        self.encode_nn = nn.Sequential(
+            nn.Linear(in_dimension, layer_1d),
             nn.ReLU(),
-            nn.Linear(layer1_dim, layer2_dim),
+            nn.Linear(layer_1d, layer_2d),
             nn.ReLU(),
-            nn.Linear(layer2_dim, layer3_dim),
+            nn.Linear(layer_2d, layer_3d),
             nn.ReLU()
         )
 
-        # Layers for computing latent space parameters
-        self.mu_layer = nn.Linear(layer3_dim, latent_dim)
-        self.log_var_layer = nn.Linear(layer3_dim, latent_dim)
+        # Latent space mean
+        self.encode_mu = nn.Linear(layer_3d, latent_dimension)
+
+        # Latent space variance
+        self.encode_log_var = nn.Linear(layer_3d, latent_dimension)
 
     @staticmethod
-    # Reparameterization trick to sample from N(mu, sigma^2) using N(0,1).
     def reparameterize(mu, log_var):
         std = torch.exp(0.5 * log_var)
         eps = torch.randn_like(std)
-        return eps * std + mu
+        return eps.mul(std).add_(mu)
 
-    # Forward pass through the encoder.
+    # Pass though encoder
     def forward(self, x):
-        hidden = self.encoder_nn(x)
-        mu = self.mu_layer(hidden)
-        log_var = self.log_var_layer(hidden)
+        h1 = self.encode_nn(x)
+        mu = self.encode_mu(h1)
+        log_var = self.encode_log_var(h1)
         z = self.reparameterize(mu, log_var)
         return z, mu, log_var
 
-class VAEDecoder(nn.Module):
-    # Decoder module for a Variational Autoencoder (VAE).
-    # Decodes the latent space representation back into the original space.
-    def __init__(self, latent_dim, gru_layers, gru_units, output_dim):
-        super(VAEDecoder, self).__init__()
-        self.latent_dim = latent_dim
-        self.gru_layers = gru_layers
-        self.gru_units = gru_units
 
-        # GRU for sequence decoding
-        self.gru = nn.GRU(
-            input_size=latent_dim,
-            hidden_size=gru_units,
-            num_layers=gru_layers,
-            batch_first=False
+class VAEDecoder(nn.Module):
+
+    def __init__(self, latent_dimension, gru_stack_size, gru_neurons_num,
+                 out_dimension):
+        super(VAEDecoder, self).__init__()
+        self.latent_dimension = latent_dimension
+        self.gru_stack_size = gru_stack_size
+        self.gru_neurons_num = gru_neurons_num
+
+        self.decode_RNN = nn.GRU(
+            input_size=latent_dimension,
+            hidden_size=gru_neurons_num,
+            num_layers=gru_stack_size,
+            batch_first=False)
+
+        self.decode_FC = nn.Sequential(
+            nn.Linear(gru_neurons_num, out_dimension),
         )
 
-        # Fully connected layer for output decoding
-        self.output_layer = nn.Linear(gru_units, output_dim)
-
-    # Initialize the hidden state for the GRU.
     def init_hidden(self, batch_size=1):
         weight = next(self.parameters())
-        return weight.new_zeros(self.gru_layers, batch_size, self.gru_units)
+        return weight.new_zeros(self.gru_stack_size, batch_size,
+                                self.gru_neurons_num)
 
-    # Forward pass through the decoder.
     def forward(self, z, hidden):
-        gru_output, hidden = self.gru(z, hidden)
-        decoded = self.output_layer(gru_output)
+        l1, hidden = self.decode_RNN(z, hidden)
+        decoded = self.decode_FC(l1)
         return decoded, hidden

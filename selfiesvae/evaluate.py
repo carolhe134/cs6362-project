@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import selfies as sf
 import numpy as np
-from utils import is_correct_smiles
+from .utils import is_correct_smiles
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
